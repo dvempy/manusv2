@@ -1,0 +1,309 @@
+---
+import FormLayout from '../../components/FormLayout.astro';
+import { saveFormState, getFormValue } from '../../lib/form-state';
+
+// Get previous form data from query params
+const loanReason   = Astro.url.searchParams.get('loan_reason');
+const loanAmount   = Astro.url.searchParams.get('loan_amount');
+const housing      = Astro.url.searchParams.get('housing');
+
+// Save to form state once we have those three
+if (loanReason && loanAmount && housing) {
+  saveFormState({ loan_reason: loanReason, loan_amount: loanAmount, housing });
+}
+
+// Prefill if coming back
+const previousEmployment = getFormValue('employment') || '';
+
+// Build the next‐step URL
+const nextUrl =
+  `/form/income`
+  + `?loan_reason=${encodeURIComponent(loanReason  || '')}`
+  + `&loan_amount=${encodeURIComponent(loanAmount  || '')}`
+  + `&housing=${encodeURIComponent(housing     || '')}`;
+---
+
+<FormLayout currentStep="employment" title="What's your employment status?">
+  <p class="subtitle">Select your current employment situation</p>
+
+  <form method="GET" action={nextUrl} class="loan-form">
+    <!-- Carry forward previous data -->
+    <input type="hidden" name="loan_reason" value={loanReason} />
+    <input type="hidden" name="loan_amount" value={loanAmount} />
+    <input type="hidden" name="housing"    value={housing} />
+
+    <div class="employment-grid">
+      <label class="employment-option">
+        <input
+          type="radio"
+          name="employment"
+          value="full_time"
+          required
+          checked={previousEmployment === 'full_time'}
+        />
+        <div class="employment-content">
+          <div class="employment-icon">💼</div>
+          <div class="employment-text">
+            <div class="employment-type">Full-time</div>
+            <div class="employment-desc">Employed 30+ hours/week</div>
+          </div>
+        </div>
+      </label>
+
+      <label class="employment-option">
+        <input
+          type="radio"
+          name="employment"
+          value="part_time"
+          required
+          checked={previousEmployment === 'part_time'}
+        />
+        <div class="employment-content">
+          <div class="employment-icon">📅</div>
+          <div class="employment-text">
+            <div class="employment-type">Part-time</div>
+            <div class="employment-desc">Less than 30 hours/week</div>
+          </div>
+        </div>
+      </label>
+
+      <label class="employment-option">
+        <input
+          type="radio"
+          name="employment"
+          value="self_employed"
+          required
+          checked={previousEmployment === 'self_employed'}
+        />
+        <div class="employment-content">
+          <div class="employment-icon">🏢</div>
+          <div class="employment-text">
+            <div class="employment-type">Self-employed</div>
+            <div class="employment-desc">Business owner or contractor</div>
+          </div>
+        </div>
+      </label>
+
+      <label class="employment-option">
+        <input
+          type="radio"
+          name="employment"
+          value="retired"
+          required
+          checked={previousEmployment === 'retired'}
+        />
+        <div class="employment-content">
+          <div class="employment-icon">🌴</div>
+          <div class="employment-text">
+            <div class="employment-type">Retired</div>
+            <div class="employment-desc">Receiving retirement income</div>
+          </div>
+        </div>
+      </label>
+
+      <label class="employment-option">
+        <input
+          type="radio"
+          name="employment"
+          value="unemployed"
+          required
+          checked={previousEmployment === 'unemployed'}
+        />
+        <div class="employment-content">
+          <div class="employment-icon">📊</div>
+          <div class="employment-text">
+            <div class="employment-type">Not employed</div>
+            <div class="employment-desc">Currently seeking work</div>
+          </div>
+        </div>
+      </label>
+
+      <label class="employment-option">
+        <input
+          type="radio"
+          name="employment"
+          value="other"
+          required
+          checked={previousEmployment === 'other'}
+        />
+        <div class="employment-content">
+          <div class="employment-icon">📝</div>
+          <div class="employment-text">
+            <div class="employment-type">Other</div>
+            <div class="employment-desc">Military, student, etc.</div>
+          </div>
+        </div>
+      </label>
+    </div>
+
+    <div class="trust-message">
+      <div class="lock-icon">🔒</div>
+      <p>This helps us match you with the right loan options</p>
+    </div>
+
+    <div class="form-actions">
+      <a
+        href={`/form/housing?loan_reason=${encodeURIComponent(loanReason  || '')}` +
+              `&loan_amount=${encodeURIComponent(loanAmount  || '')}`}
+        class="button button-back"
+      >
+        Back
+      </a>
+      <button type="submit" class="button">Continue</button>
+    </div>
+  </form>
+</FormLayout>
+
+<script>
+  // Highlight selected option
+  document.querySelectorAll('.employment-option').forEach((option) => {
+    const radio = option.querySelector('input[type="radio"]');
+    if (radio.checked) option.classList.add('selected');
+    radio.addEventListener('change', () => {
+      document.querySelectorAll('.employment-option').forEach((o) => o.classList.remove('selected'));
+      if (radio.checked) option.classList.add('selected');
+    });
+  });
+
+  // Persist choice before navigating
+  document.querySelector('.loan-form').addEventListener('submit', (e) => {
+    const sel = document.querySelector('input[name="employment"]:checked');
+    if (!sel) {
+      e.preventDefault();
+      return false;
+    }
+    sessionStorage.setItem(
+      'form-state',
+      JSON.stringify({
+        ...JSON.parse(sessionStorage.getItem('form-state') || '{}'),
+        employment: sel.value,
+      })
+    );
+  });
+</script>
+
+<style>
+  .subtitle {
+    color: var(--color-muted);
+    margin-bottom: 2rem;
+    font-size: 0.875rem;
+  }
+
+  .employment-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .employment-option {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .employment-option input[type='radio'] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  .employment-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    transition: all 0.2s;
+  }
+
+  .employment-option:hover .employment-content {
+    border-color: var(--color-accent);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .employment-option.selected .employment-content {
+    border-color: var(--color-accent);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .employment-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .employment-text {
+    flex-grow: 1;
+  }
+
+  .employment-type {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--color-text);
+  }
+
+  .employment-desc {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+  }
+
+  .trust-message {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .lock-icon {
+    font-size: 1.25rem;
+  }
+
+  .trust-message p {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    margin: 0;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .button {
+    flex: 1;
+    background: var(--color-accent);
+    color: var(--color-background);
+    padding: 1rem;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+
+  .button-back {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-text);
+  }
+
+  @media (max-width: 768px) {
+    .employment-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+  }
+</style>

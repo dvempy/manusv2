@@ -1,0 +1,216 @@
+---
+import FormLayout from '../../components/FormLayout.astro';
+import { saveFormState, getFormValue } from '../../lib/form-state';
+import { validateIncome } from '../../lib/form-validation';
+import { formatCurrency } from '../../lib/form-utils';
+
+/* -------------------------------------------------
+ * Gather answers from previous steps
+ * ------------------------------------------------- */
+const loanReason = Astro.url.searchParams.get('loan_reason')  ?? '';
+const loanAmount = Astro.url.searchParams.get('loan_amount')  ?? '';
+const housing    = Astro.url.searchParams.get('housing')      ?? '';
+const employment = Astro.url.searchParams.get('employment')   ?? '';
+
+if (loanReason && loanAmount && housing && employment) {
+  saveFormState({ loan_reason: loanReason, loan_amount: loanAmount, housing, employment });
+}
+
+/* -------------------------------------------------
+ * Restore this step if the user is coming back
+ * ------------------------------------------------- */
+const previousIncome = getFormValue('income') ?? '';
+---
+
+<FormLayout currentStep="income" title="What's your annual income?">
+  <p class="subtitle">Enter your total yearly income before taxes</p>
+
+  <form
+    method="GET"
+    action={`/form/name?loan_reason=${encodeURIComponent(loanReason)}&loan_amount=${encodeURIComponent(loanAmount)}&housing=${encodeURIComponent(housing)}&employment=${encodeURIComponent(employment)}`}
+    class="loan-form"
+  >
+    <!-- keep prior answers moving forward -->
+    <input type="hidden" name="loan_reason"  value={loanReason} />
+    <input type="hidden" name="loan_amount"  value={loanAmount} />
+    <input type="hidden" name="housing"      value={housing} />
+    <input type="hidden" name="employment"   value={employment} />
+
+    <div class="form-group">
+      <div class="amount-input">
+        <span class="currency">$</span>
+
+        <!-- visible, formatted field (no name so it isn't submitted) -->
+        <input
+          type="text"
+          id="income"
+          inputmode="numeric"
+          data-min="12000"
+          autocomplete="off"
+          placeholder="50,000"
+          value={previousIncome ? formatCurrency(previousIncome).replace('$','') : ''}
+          required
+        />
+
+        <!-- hidden raw value that actually submits -->
+        <input type="hidden" id="income_raw" name="income" value={previousIncome} />
+      </div>
+      <div class="amount-hint">Before taxes, in&nbsp;USD</div>
+    </div>
+
+    <div class="income-sources">
+      <h2>Include all sources of income:</h2>
+      <ul>
+        <li>Salary and wages</li>
+        <li>Self-employment income</li>
+        <li>Investment returns</li>
+        <li>Rental income</li>
+        <li>Retirement benefits</li>
+        <li>Other regular income</li>
+      </ul>
+    </div>
+
+    <div class="trust-message">
+      <div class="lock-icon">🔒</div>
+      <p>Your information is protected with bank-level security</p>
+    </div>
+
+    <div class="form-actions">
+      <a
+        href={`/form/employment?loan_reason=${encodeURIComponent(loanReason)}&loan_amount=${encodeURIComponent(loanAmount)}&housing=${encodeURIComponent(housing)}`}
+        class="button button-back"
+      >
+        Back
+      </a>
+
+      <button type="submit" class="button">Continue</button>
+    </div>
+  </form>
+</FormLayout>
+
+<script>
+  /* ------------------------------------------
+   * Utility: add thousands separators on the fly
+   * ------------------------------------------ */
+  function formatNumber(val) {
+    const digits = val.replace(/\D/g, '');
+    return new Intl.NumberFormat('en-US').format(digits);
+  }
+
+  /* ------------------------------------------
+   * Real-time formatting + min-value guard
+   * ------------------------------------------ */
+  function handleAmountInput(input, hidden) {
+    const beforeLen = input.value.length;
+    let cursor      = input.selectionStart;
+
+    const raw = input.value.replace(/\D/g, '');
+    input.value  = formatNumber(raw);
+    hidden.value = raw;
+
+    cursor += input.value.length - beforeLen;
+    input.setSelectionRange(cursor, cursor);
+
+    const min = parseInt(input.dataset.min, 10) || 0;
+    const num = parseInt(raw, 10) || 0;
+    input.setCustomValidity(
+      num < min ? `Annual income must be at least $${formatNumber(min.toString())}` : ''
+    );
+  }
+
+  const incomeInput = document.getElementById('income');
+  const incomeRaw   = document.getElementById('income_raw');
+  incomeInput.addEventListener('input', () => handleAmountInput(incomeInput, incomeRaw));
+
+  /* ------------------------------------------
+   * Final validation on submit
+   * ------------------------------------------ */
+  document.querySelector('.loan-form').addEventListener('submit', (e) => {
+    const raw = incomeRaw.value;
+
+    if (!raw || !validateIncome(raw)) {
+      e.preventDefault();
+      incomeInput.setCustomValidity('Annual income must be at least $12,000');
+      incomeInput.reportValidity();
+      return false;
+    }
+
+    /* Carry the income forward in the query-string */
+    const formURL = new URL(e.target.action);
+    formURL.searchParams.set('income', raw);
+    e.target.action = formURL.toString();
+
+    /* Persist to sessionStorage for later steps */
+    const state = JSON.parse(sessionStorage.getItem('form-state') || '{}');
+    state.income = raw;
+    sessionStorage.setItem('form-state', JSON.stringify(state));
+  });
+</script>
+
+<style>
+  /* ----------  layout tweaks specific to this step ---------- */
+
+  .subtitle { margin-bottom: 2rem; font-size: 0.875rem; color: var(--color-muted); }
+  .form-group { margin-bottom: 2rem; }
+
+  .amount-input { position: relative; }
+  .currency     { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-weight: 500; color: var(--color-text); }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 1.25rem 1.25rem 1.25rem 2.5rem;
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: var(--color-text);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    transition: all 0.2s;
+  }
+  input[type="text"]:hover { border-color: var(--color-accent); }
+  input[type="text"]:focus { border-color: var(--color-accent); background: rgba(255,255,255,0.1); outline: none; }
+
+  .amount-hint { margin-top: 0.5rem; font-size: 0.875rem; color: var(--color-muted); }
+
+  .income-sources {
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    background: rgba(255,255,255,0.05);
+    border-radius: 0.75rem;
+  }
+  .income-sources h2 { margin-bottom: 0.75rem; font-size: 1rem; font-weight: 600; color: var(--color-text); }
+  .income-sources ul {
+    display: grid; gap: 0.5rem 2rem; grid-template-columns: repeat(2, 1fr);
+    margin: 0; padding: 0; list-style: none;
+  }
+  .income-sources li {
+    position: relative; padding-left: 1.25rem;
+    font-size: 0.875rem; color: var(--color-muted);
+  }
+  .income-sources li::before { content: "•"; position: absolute; left: 0; color: var(--color-accent); }
+
+  .trust-message {
+    display: flex; align-items: center; gap: 1rem;
+    padding: 1rem; margin-bottom: 2rem;
+    background: rgba(255,255,255,0.05); border-radius: 0.75rem;
+  }
+  .lock-icon { font-size: 1.25rem; }
+  .trust-message p { margin: 0; font-size: 0.875rem; color: var(--color-muted); }
+
+  .form-actions { display: flex; gap: 1rem; }
+
+  .button {
+    flex: 1; padding: 1rem;
+    font-size: 1rem; font-weight: 600;
+    text-align: center; text-decoration: none; cursor: pointer;
+    border: none; border-radius: 0.75rem; transition: all 0.2s;
+  }
+  .button       { background: var(--color-accent);  color: var(--color-background); }
+  .button:hover { opacity: 0.9; transform: translateY(-2px); }
+  .button-back  { background: rgba(255,255,255,0.1); color: var(--color-text); }
+
+  @media (max-width: 768px) {
+    input[type="text"] { font-size: 1.25rem; padding: 1rem 1rem 1rem 2.25rem; }
+    .income-sources ul { grid-template-columns: 1fr; }
+  }
+</style>

@@ -1,0 +1,1058 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<Layout>
+  <header class="header" role="banner">
+    <nav class="container nav" role="navigation" aria-label="Main navigation">
+      <div class="nav-content">
+        <a href="/" class="logo" aria-label="Approved Offers Home">Approved Offers</a>
+      </div>
+
+      <div class="nav-links desktop-only">
+        <a href="#how-it-works">How it works</a>
+        <a href="#faq">FAQ</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main" role="main">
+    <section class="hero container">
+      <div class="hero-grid">
+        <div class="hero-content">
+          <h1>Compare the Best Personal Loans</h1>
+
+          <div class="hero-features" role="list">
+            <div class="feature-item" role="listitem">
+              <span class="check" aria-hidden="true">✓</span>
+              <span class="feature-text">Loans from 5.99% APR</span>
+            </div>
+            <div class="feature-item" role="listitem">
+              <span class="check" aria-hidden="true">✓</span>
+              <span class="feature-text">No impact to credit score</span>
+            </div>
+            <div class="feature-item" role="listitem">
+              <span class="check" aria-hidden="true">✓</span>
+              <span class="feature-text">Get offers in 60 seconds</span>
+            </div>
+          </div>
+
+          <div class="trust-badge desktop-only" aria-label="Customer reviews">
+            <div class="profile-stack" aria-hidden="true">
+              <div class="profile-image" style="background-image: url('/images/profiles/profile1.webp')"></div>
+              <div class="profile-image" style="background-image: url('/images/profiles/profile2.webp')"></div>
+              <div class="profile-image" style="background-image: url('/images/profiles/profile3.webp')"></div>
+              <div class="profile-image" style="background-image: url('/images/profiles/profile4.webp')"></div>
+            </div>
+            <div class="trust-content">
+              <span>4.8 stars</span>
+              <span>12,000+ reviews</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="loan-section">
+          <form
+            name="loan-purpose-form"
+            method="GET"
+            action="/form/loan-amount"
+            class="loan-form"
+            novalidate
+          >
+            <input type="hidden" name="loan_reason" id="loan_reason" value="debt_consolidation" />
+
+            <h2 class="loan-heading" id="loan-purpose-heading">What's the reason for your loan?</h2>
+
+            <div class="loan-grid" role="group" aria-labelledby="loan-purpose-heading">
+              <button
+                type="button"
+                class="loan-button selected"
+                data-value="debt_consolidation"
+                aria-pressed="true"
+              >
+                <span class="popular-badge" aria-label="Most popular option">Most Popular</span>
+                <img
+                  loading="lazy"
+                  src="https://api.iconify.design/material-symbols:account-balance.svg?color=white"
+                  alt=""
+                  role="presentation"
+                  class="loan-icon"
+                />
+                <span class="button-label">Debt consolidation</span>
+              </button>
+              <button
+                type="button"
+                class="loan-button"
+                data-value="credit_cards"
+                aria-pressed="false"
+              >
+                <img
+                  loading="lazy"
+                  src="https://api.iconify.design/material-symbols:credit-card.svg?color=white"
+                  alt=""
+                  role="presentation"
+                  class="loan-icon"
+                />
+                <span class="button-label">Paying off credit cards</span>
+              </button>
+              <button
+                type="button"
+                class="loan-button"
+                data-value="home_improvement"
+                aria-pressed="false"
+              >
+                <img
+                  loading="lazy"
+                  src="https://api.iconify.design/material-symbols:home.svg?color=white"
+                  alt=""
+                  role="presentation"
+                  class="loan-icon"
+                />
+                <span class="button-label">Home improvement</span>
+              </button>
+              <button
+                type="button"
+                class="loan-button"
+                data-value="major_purchase"
+                aria-pressed="false"
+              >
+                <img
+                  loading="lazy"
+                  src="https://api.iconify.design/material-symbols:shopping-cart.svg?color=white"
+                  alt=""
+                  role="presentation"
+                  class="loan-icon"
+                />
+                <span class="button-label">Major purchase</span>
+              </button>
+            </div>
+
+            <div class="other-reason">
+              <label for="loan_reason_select" class="other-label">Other reason:</label>
+              <select
+                id="loan_reason_select"
+                class="select-input"
+                aria-label="Select another loan purpose"
+              >
+                <option value="">Select another option</option>
+                <option value="bills_rent">Paying bills or rent</option>
+                <option value="medical">Medical expenses</option>
+                <option value="car_purchase">Car purchase / financing</option>
+                <option value="car_repair">Car repair</option>
+                <option value="business">Business expenses</option>
+                <option value="moving">Moving expenses</option>
+                <option value="family">Family / life event</option>
+                <option value="travel">Travel</option>
+                <option value="taxes">Taxes</option>
+                <option value="wedding">Wedding</option>
+                <option value="motorcycle">Motorcycle</option>
+                <option value="baby">Baby / adoption</option>
+                <option value="cosmetic">Cosmetic procedures</option>
+                <option value="boat_rv">Boat or RV</option>
+                <option value="engagement">Engagement ring</option>
+                <option value="other">Other</option>
+              </select>
+              <button type="submit" class="button button-full">
+                <span class="button-text">See My Offers</span>
+                <img
+                  loading="lazy"
+                  src="https://api.iconify.design/material-symbols:arrow-forward.svg?color=black"
+                  alt=""
+                  role="presentation"
+                  width="20"
+                  height="20"
+                />
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section class="lender-section">
+      <div class="container">
+        <p class="subtitle lender-heading">
+          200,000+ Americans have saved thousands of dollars with Approved Offers
+        </p>
+      </div>
+
+      <div class="lender-scroll">
+        <div class="lender-track">
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender1.svg" alt="" width="140" height="25" />
+          </div>
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender2.svg" alt="" width="140" height="25" />
+          </div>
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender3.svg" alt="" width="140" height="25" />
+          </div>
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender4.svg" alt="" width="140" height="25" />
+          </div>
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender5.svg" alt="" width="140" height="25" />
+          </div>
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender6.svg" alt="" width="140" height="25" />
+          </div>
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender7.svg" alt="" width="140" height="25" />
+          </div>
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender8.svg" alt="" width="140" height="25" />
+          </div>
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender9.svg" alt="" width="140" height="25" />
+          </div>
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender10.svg" alt="" width="140" height="25" />
+          </div>
+
+          <!-- Duplicate for infinite scroll effect -->
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender1.svg" alt="" width="140" height="25" />
+          </div>
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender2.svg" alt="" width="140" height="25" />
+          </div>
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender3.svg" alt="" width="140" height="25" />
+          </div>
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender4.svg" alt="" width="140" height="25" />
+          </div>
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender5.svg" alt="" width="140" height="25" />
+          </div>
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender6.svg" alt="" width="140" height="25" />
+          </div>
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender7.svg" alt="" width="140" height="25" />
+          </div>
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender8.svg" alt="" width="140" height="25" />
+          </div>
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender9.svg" alt="" width="140" height="25" />
+          </div>
+          <div class="lender-logo">
+            <img loading="lazy" src="/images/lenders/lender10.svg" alt="" width="140" height="25" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="how-it-works" id="how-it-works">
+      <div class="container">
+        <p class="overline">HOW IT WORKS</p>
+        <h2>Get your loan in three simple steps</h2>
+        <p class="subtitle">No hidden fees, no commitments, just fast funding when you need it</p>
+
+        <div class="timeline">
+          <div class="timeline-track"></div>
+
+          <div class="steps">
+            <div class="step">
+              <span class="step-number">Now</span>
+              <div class="icon-wrapper">
+                <img
+                  loading="lazy"
+                  src="https://api.iconify.design/material-symbols:description-outline.svg?color=0c0a08"
+                  alt=""
+                  width="24"
+                  height="24"
+                />
+              </div>
+              <h3>Tell us your needs</h3>
+              <p>See personalized options instantly</p>
+              <p>No SSN or credit check required</p>
+            </div>
+
+            <div class="step">
+              <span class="step-number">In Seconds</span>
+              <div class="icon-wrapper">
+                <img
+                  loading="lazy"
+                  src="https://api.iconify.design/material-symbols:compare-arrows.svg?color=0c0a08"
+                  alt=""
+                  width="24"
+                  height="24"
+                />
+              </div>
+              <h3>Compare offers</h3>
+              <p>Live APRs & terms from top lenders</p>
+              <p>Choose your best option</p>
+            </div>
+
+            <div class="step">
+              <span class="step-number">Next Day</span>
+              <div class="icon-wrapper">
+                <img
+                  loading="lazy"
+                  src="https://api.iconify.design/material-symbols:payments-outline.svg?color=0c0a08"
+                  alt=""
+                  width="24"
+                  height="24"
+                />
+              </div>
+              <h3>Get funded</h3>
+              <p>Complete quick e-sign process</p>
+              <p>Funds sent to your bank</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="faq" id="faq">
+      <div class="container">
+        <h2>Frequently Asked Questions About Personal Loans</h2>
+        <div class="faq-grid">
+          <details class="faq-item">
+            <summary>What is a personal loan?</summary>
+            <p>
+              A personal loan is an unsecured loan that provides you with a lump sum of money, which
+              you repay in fixed monthly installments over a set period. These loans can be used for
+              various purposes, such as debt consolidation, home improvements, medical expenses, or
+              major purchases.
+            </p>
+          </details>
+
+          <details class="faq-item">
+            <summary>How do personal loans work?</summary>
+            <p>
+              Once approved, you receive the loan amount in a single payment. You then repay the
+              loan in equal monthly installments that cover both the principal and interest, over
+              the agreed-upon term.
+            </p>
+          </details>
+
+          <details class="faq-item">
+            <summary>What can I use a personal loan for?</summary>
+            <p>
+              Personal loans are versatile and can be used for consolidating high-interest debts,
+              funding home renovations, covering medical bills, financing weddings or vacations, and
+              managing unexpected expenses.
+            </p>
+          </details>
+
+          <details class="faq-item">
+            <summary>How much can I borrow with a personal loan?</summary>
+            <p>
+              Loan amounts typically range from $1,000 to $100,000, depending on the lender, your
+              creditworthiness, income, and debt-to-income ratio.
+            </p>
+          </details>
+
+          <details class="faq-item">
+            <summary>What is the typical interest rate on a personal loan?</summary>
+            <p>
+              Interest rates vary based on your credit score, income, and loan term. Generally,
+              rates range from around 6% to 36% APR. Borrowers with excellent credit scores often
+              qualify for lower rates.
+            </p>
+          </details>
+
+          <details class="faq-item">
+            <summary>Will applying for a personal loan affect my credit score?</summary>
+            <p>
+              Checking your rates through a prequalification process usually involves a soft credit
+              inquiry, which doesn't impact your credit score. However, submitting a full
+              application may result in a hard inquiry, which can temporarily lower your score by a
+              few points.
+            </p>
+          </details>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <Footer />
+</Layout>
+
+<script>
+  import { initFloatingButton } from '../lib/floating-button';
+
+  // Initialize floating button
+  initFloatingButton({
+    formSelector: '.loan-form',
+    mainButtonSelector: '.button-full',
+  });
+
+  // Handle loan reason button clicks
+  document.querySelectorAll('.loan-button').forEach((button) => {
+    button.addEventListener('click', () => {
+      // Remove selected state from all buttons
+      document.querySelectorAll('.loan-button').forEach((btn) => {
+        btn.classList.remove('selected');
+        btn.setAttribute('aria-pressed', 'false');
+      });
+
+      // Add selected state to clicked button
+      button.classList.add('selected');
+      button.setAttribute('aria-pressed', 'true');
+
+      // Update hidden input
+      const loanReasonValue = button.dataset.value;
+      document.getElementById('loan_reason').value = loanReasonValue;
+      
+      // Store in sessionStorage for persistence
+      const state = JSON.parse(sessionStorage.getItem('form-state') || '{}');
+      state.loan_reason = loanReasonValue;
+      sessionStorage.setItem('form-state', JSON.stringify(state));
+      
+      // Reset dropdown
+      document.getElementById('loan_reason_select').value = '';
+    });
+
+    // Add keyboard support
+    button.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        button.click();
+      }
+    });
+  });
+
+  // Handle dropdown changes
+  document.getElementById('loan_reason_select').addEventListener('change', (e) => {
+    const value = e.target.value;
+    if (value) {
+      // Remove selected state from all buttons
+      document.querySelectorAll('.loan-button').forEach((btn) => {
+        btn.classList.remove('selected');
+        btn.setAttribute('aria-pressed', 'false');
+      });
+
+      // Update hidden input
+      document.getElementById('loan_reason').value = value;
+      
+      // Store in sessionStorage for persistence
+      const state = JSON.parse(sessionStorage.getItem('form-state') || '{}');
+      state.loan_reason = value;
+      sessionStorage.setItem('form-state', JSON.stringify(state));
+    }
+  });
+
+  // Form validation
+  document.querySelector('.loan-form').addEventListener('submit', (e) => {
+    const loanReason = document.getElementById('loan_reason').value;
+    if (!loanReason) {
+      e.preventDefault();
+      alert('Please select a loan reason');
+      return;
+    }
+    
+    // Store loan reason in sessionStorage before submission
+    const state = JSON.parse(sessionStorage.getItem('form-state') || '{}');
+    state.loan_reason = loanReason;
+    sessionStorage.setItem('form-state', JSON.stringify(state));
+  });
+</script>
+
+<style>
+  :root {
+    --button-text-weight: 500;
+  }
+
+  .desktop-only {
+    display: flex;
+  }
+
+  .hero {
+    padding: 1.5rem 0 0.5rem;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 4rem;
+    align-items: center;
+    min-height: calc(100vh - 200px);
+  }
+
+  .hero-content {
+    text-align: left;
+    padding-top: 0;
+  }
+
+  .hero-features {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 1.5rem 0 2rem;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.125rem;
+  }
+
+  .feature-text {
+    color: #f5f5f5;
+  }
+
+  .check {
+    color: var(--color-accent);
+    font-weight: bold;
+    font-size: 1.25rem;
+  }
+
+  .loan-heading {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--color-text);
+    margin-bottom: 1.5rem;
+  }
+
+  .loan-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .loan-button {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    min-height: 120px;
+  }
+
+  .loan-button:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--color-accent);
+    transform: translateY(-2px);
+  }
+
+  .loan-button.selected {
+    border-color: var(--color-accent);
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .loan-icon {
+    width: 32px;
+    height: 32px;
+    margin-bottom: 0.75rem;
+  }
+
+  .button-label {
+    font-weight: 500;
+    line-height: 1.3;
+  }
+
+  .popular-badge {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: rgba(232, 255, 129, 0.15);
+    color: var(--color-accent);
+    font-size: 0.75rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.75rem;
+    font-weight: 500;
+  }
+
+  .button-text {
+    font-size: 1.125rem;
+    font-weight: var(--button-text-weight);
+  }
+
+  .select-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    padding: 1rem 1.25rem;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0.75rem;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23A3A3A3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.25rem;
+  }
+
+  .select-input:hover {
+    border-color: var(--color-accent);
+  }
+
+  .select-input:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .how-it-works {
+    background: #fff;
+    padding: 6rem 0;
+    margin-top: 4rem;
+    text-align: center;
+  }
+
+  .overline {
+    font-size: 0.875rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    color: #6d6c6b;
+    margin-bottom: 1rem;
+  }
+
+  .how-it-works h2 {
+    font-size: 2.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #0c0a08;
+  }
+
+  .subtitle {
+    color: #6d6c6b;
+    font-size: 1.125rem;
+    margin-bottom: 4rem;
+  }
+
+  .lender-heading {
+    text-align: center;
+    max-width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 2rem;
+    color: #f5f5f5;
+  }
+
+  .timeline {
+    position: relative;
+    padding: 2rem 0;
+    margin: 0 auto;
+    max-width: 1000px;
+  }
+
+  .timeline-track {
+    position: absolute;
+    top: 5.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 2px;
+    background: #e5e7eb;
+    z-index: 0;
+  }
+
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    position: relative;
+  }
+
+  .step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .step-number {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6d6c6b;
+    margin-bottom: 1rem;
+  }
+
+  .icon-wrapper {
+    width: 48px;
+    height: 48px;
+    background: #f4f2f0;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .step h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #0c0a08;
+    margin-bottom: 1rem;
+  }
+
+  .step p {
+    color: #6d6c6b;
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+  }
+
+  .cta-wrapper {
+    margin-top: 4rem;
+    text-align: center;
+  }
+
+  .button-secondary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: rgba(228, 242, 35, 0.2);
+    color: var(--color-background);
+    padding: 1rem 2rem;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1.125rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .button-secondary:hover {
+    background: rgba(228, 242, 35, 0.3);
+    transform: translateY(-2px);
+  }
+
+  .faq {
+    background-color: #1a1919;
+    padding: 6rem 0;
+  }
+
+  .faq h2 {
+    color: #ffffff;
+    font-size: 2.5rem;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 4rem;
+  }
+
+  .faq-grid {
+    display: grid;
+    gap: 1.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .faq-item {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 0.75rem;
+    overflow: hidden;
+  }
+
+  .faq-item summary {
+    padding: 1.5rem;
+    cursor: pointer;
+    color: #ffffff;
+    font-weight: 500;
+    font-size: 1.125rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    list-style: none;
+  }
+
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-item summary::after {
+    content: '+';
+    font-size: 1.5rem;
+    color: #a3a3a3;
+    transition: transform 0.3s ease;
+  }
+
+  .faq-item[open] summary::after {
+    transform: rotate(45deg);
+  }
+
+  .faq-item p {
+    padding: 0 1.5rem 1.5rem;
+    margin: 0;
+    color: #a3a3a3;
+    line-height: 1.6;
+  }
+
+  .button-full {
+    width: 100%;
+    padding: 1.25rem;
+    font-size: 1.125rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    background: var(--color-accent);
+    color: var(--color-background);
+    border: none;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .button-full:hover {
+    opacity: 0.95;
+    transform: translateY(-2px);
+  }
+
+  .nav-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .mobile-trust {
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--color-muted);
+  }
+
+  .stars {
+    color: var(--color-accent);
+  }
+
+  .floating-button-container {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 1rem;
+    background: linear-gradient(to top, rgba(26, 54, 49, 0.98) 0%, rgba(26, 54, 49, 0) 100%);
+    transform: translateY(100%);
+    transition:
+      transform 0.3s ease,
+      opacity 0.3s ease;
+    z-index: 100;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  .floating-button-container.visible {
+    transform: translateY(0);
+    pointer-events: auto;
+    opacity: 1;
+  }
+
+  .floating-button {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    background: var(--color-accent);
+    color: var(--color-background);
+    border: none;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .floating-button:hover {
+    opacity: 0.95;
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    .header {
+      padding: 0.75rem 0;
+      border-bottom: none;
+    }
+
+    .logo {
+      font-size: 1rem;
+    }
+
+    .hero {
+      padding: 0.75rem 0;
+    }
+
+    .hero-grid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      min-height: auto;
+    }
+
+    .hero-content {
+      text-align: center;
+      order: 0;
+      padding: 0 2rem;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      line-height: 1.2;
+      margin: 0 auto 0.75rem;
+      max-width: 280px;
+    }
+
+    .hero-features {
+      align-items: center;
+      margin: 0;
+      gap: 0.25rem;
+    }
+
+    .feature-item {
+      font-size: 0.875rem;
+      gap: 0.5rem;
+    }
+
+    .loan-section {
+      order: 1;
+      padding: 1.25rem;
+      border-radius: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      margin-top: -0.5rem;
+    }
+
+    .nav-content {
+      width: 100%;
+    }
+
+    .mobile-trust {
+      display: flex;
+    }
+
+    .desktop-only {
+      display: none;
+    }
+
+    .loan-heading {
+      text-align: center;
+      margin-bottom: 1.25rem;
+      font-size: 1.125rem;
+    }
+
+    .loan-grid {
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .loan-button {
+      min-height: 100px;
+      padding: 1.25rem 1rem;
+    }
+
+    .loan-icon {
+      width: 28px;
+      height: 28px;
+      margin-bottom: 0.5rem;
+    }
+
+    .button-label {
+      font-size: 0.875rem;
+    }
+
+    .popular-badge {
+      font-size: 0.6875rem;
+      padding: 0.25rem 0.5rem;
+    }
+
+    .other-reason {
+      margin-top: 1.25rem;
+    }
+
+    .other-label {
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+      color: var(--color-muted);
+    }
+
+    .select-input {
+      padding: 0.875rem 1rem;
+      font-size: 0.875rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .button-full {
+      padding: 1rem;
+      font-size: 1rem;
+    }
+
+    .how-it-works {
+      padding: 4rem 0;
+      margin-top: 3rem;
+    }
+
+    .how-it-works h2 {
+      font-size: 1.75rem;
+      margin: 0 1rem 0.75rem;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+      margin-bottom: 3rem;
+      padding: 0 1rem;
+    }
+
+    .timeline-track {
+      display: none;
+    }
+
+    .steps {
+      grid-template-columns: 1fr;
+      gap: 2.5rem;
+      padding: 0 1rem;
+    }
+
+    .step {
+      background: #f9f9f8;
+      padding: 2rem 1.5rem;
+      border-radius: 1rem;
+    }
+
+    .faq {
+      padding: 4rem 0;
+    }
+
+    .faq h2 {
+      font-size: 1.75rem;
+      margin: 0 1rem 2.5rem;
+    }
+
+    .faq-grid {
+      padding: 0 1rem;
+    }
+
+    .faq-item summary {
+      padding: 1.25rem;
+      font-size: 1rem;
+    }
+
+    .faq-item p {
+      padding: 0 1.25rem 1.25rem;
+      font-size: 0.875rem;
+    }
+
+    .floating-button-container {
+      display: block;
+    }
+  }
+
+  /* Only hide floating button on desktop */
+  @media (min-width: 769px) {
+    .floating-button-container {
+      display: none;
+    }
+  }
+</style>

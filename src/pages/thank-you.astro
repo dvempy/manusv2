@@ -1,0 +1,311 @@
+---
+import Layout from '../layouts/Layout.astro';
+import FormHeader from '../components/FormHeader.astro';
+
+// Get user data from query params
+const loanAmount = Astro.url.searchParams.get('loan_amount');
+---
+
+<Layout>
+  <FormHeader />
+  <main>
+    <div class="container">
+      <div class="results-wrapper">
+        <div class="offer-card">
+          <div class="offer-header">
+            <h1>Your Best Personal Loan Offer</h1>
+            <div class="rate-badge">Rates from 5.99% APR</div>
+          </div>
+
+          <div class="offer-content">
+            <!-- Affiliate tracking link and image -->
+            <div class="partner-logo">
+              <a
+                rel="sponsored"
+                href="https://it-media.pxf.io/c/3587076/1473136/17319"
+                target="_top"
+                id="1473136"
+              >
+                <img
+                  src="//a.impactradius-go.com/display-ad/17319-1473136"
+                  border="0"
+                  alt="PersonalLoans.com"
+                  width="1201"
+                  height="631"
+                />
+              </a>
+              <img
+                height="0"
+                width="0"
+                src="https://imp.pxf.io/i/3587076/1473136/17319"
+                style="position:absolute;visibility:hidden;"
+                border="0"
+              />
+            </div>
+
+            <div class="benefits">
+              <div class="benefit-item">
+                <span class="check">✓</span>
+                <span>No application fees</span>
+              </div>
+              <div class="benefit-item">
+                <span class="check">✓</span>
+                <span>Soft credit check only</span>
+              </div>
+              <div class="benefit-item">
+                <span class="check">✓</span>
+                <span>Funds in as little as 24 hours</span>
+              </div>
+            </div>
+
+            <a
+              href="https://it-media.pxf.io/c/3587076/1473136/17319"
+              rel="sponsored"
+              target="_blank"
+              class="cta-button"
+            >
+              See Your Offer
+              <span class="arrow">→</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="trust-strip">
+          <div class="trust-item">
+            <span class="stars">★★★★★</span>
+            <span>4.8 average rating</span>
+          </div>
+          <div class="trust-item">
+            <span class="icon">👥</span>
+            <span>200,000+ Americans served</span>
+          </div>
+          <div class="trust-item">
+            <span class="icon">🔒</span>
+            <span>Secure & encrypted</span>
+          </div>
+        </div>
+
+        <div class="faq-section">
+          <h2>Common Questions</h2>
+
+          <details class="faq-item">
+            <summary>Will this affect my credit score?</summary>
+            <p>No—checking rates uses a soft inquiry that won't impact your credit score.</p>
+          </details>
+
+          <details class="faq-item">
+            <summary>Are there any hidden fees?</summary>
+            <p>All fees are clearly disclosed before you apply. There are no hidden charges.</p>
+          </details>
+
+          <details class="faq-item">
+            <summary>How fast will I get funded?</summary>
+            <p>Most borrowers receive funds within 24–48 hours after final approval.</p>
+          </details>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Fire a GA4 conversion event when the thank-you page loads -->
+  <script>
+    if (typeof gtag === 'function') {
+      gtag('event', 'loan_application_submitted', {
+        event_category: 'Form',
+        event_label: 'Loan Application',
+        value: 1
+      });
+    }
+  </script>
+</Layout>
+
+<style>
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem var(--container-padding);
+  }
+
+  .results-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .offer-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-border);
+    border-radius: 1.25rem;
+    padding: 2rem;
+  }
+
+  .offer-header {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  h1 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .rate-badge {
+    display: inline-block;
+    background: rgba(228, 242, 35, 0.1);
+    color: var(--color-accent);
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-weight: 500;
+  }
+
+  .offer-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
+  }
+
+  .partner-logo {
+    width: 100%;
+    max-width: 300px;
+    margin: 0 auto;
+  }
+
+  .partner-logo img {
+    width: 100%;
+    height: auto;
+    border-radius: 0.75rem;
+  }
+
+  .benefits {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .benefit-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 1.125rem;
+  }
+
+  .check {
+    color: var(--color-accent);
+    font-weight: bold;
+  }
+
+  .cta-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    background: var(--color-accent);
+    color: var(--color-background);
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    font-size: 1.25rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .cta-button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+
+  .arrow {
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  .trust-strip {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+    padding: 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.75rem;
+  }
+
+  .trust-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-muted);
+    font-size: 0.875rem;
+  }
+
+  .stars {
+    color: #ffd700;
+  }
+
+  .icon {
+    font-size: 1.25rem;
+  }
+
+  .faq-section {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.75rem;
+    padding: 1.5rem;
+  }
+
+  h2 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+  }
+
+  .faq-item {
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .faq-item:last-child {
+    border-bottom: none;
+  }
+
+  summary {
+    padding: 1rem 0;
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  summary:hover {
+    color: var(--color-accent);
+  }
+
+  .faq-item p {
+    color: var(--color-muted);
+    padding: 0 0 1rem;
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+
+  @media (max-width: 768px) {
+    .container {
+      padding: 1rem;
+    }
+
+    .offer-card {
+      padding: 1.5rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    .trust-strip {
+      flex-direction: column;
+      gap: 1rem;
+      text-align: center;
+    }
+
+    .trust-item {
+      justify-content: center;
+    }
+  }
+</style>

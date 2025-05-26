@@ -1,0 +1,247 @@
+---
+import FormLayout from '../../components/FormLayout.astro';
+import { saveFormState, getFormValue } from '../../lib/form-state';
+
+// Pull everything from URL
+const loanReason  = Astro.url.searchParams.get('loan_reason');
+const loanAmount  = Astro.url.searchParams.get('loan_amount');
+const housing     = Astro.url.searchParams.get('housing');
+const employment  = Astro.url.searchParams.get('employment');
+const income      = Astro.url.searchParams.get('income');
+const firstName   = Astro.url.searchParams.get('first_name');
+const lastName    = Astro.url.searchParams.get('last_name');
+const birthMonth  = Astro.url.searchParams.get('birth_month');
+const birthDay    = Astro.url.searchParams.get('birth_day');
+const birthYear   = Astro.url.searchParams.get('birth_year');
+
+// Once we have all prior steps, persist them
+if (
+  loanReason &&
+  loanAmount &&
+  housing &&
+  employment &&
+  income &&
+  firstName &&
+  lastName &&
+  birthMonth &&
+  birthDay &&
+  birthYear
+) {
+  saveFormState({
+    loan_reason:  loanReason,
+    loan_amount:  loanAmount,
+    housing,
+    employment,
+    income,
+    first_name:   firstName,
+    last_name:    lastName,
+    birth_month:  birthMonth,
+    birth_day:    birthDay,
+    birth_year:   birthYear,
+  });
+}
+
+// Prefill if coming back
+const previousPhone = getFormValue('phone') || '';
+
+// Build the next‐step URL
+const nextUrl =
+  `/form/zip`
+  + `?loan_reason=${encodeURIComponent(loanReason  || '')}`
+  + `&loan_amount=${encodeURIComponent(loanAmount  || '')}`
+  + `&housing=${encodeURIComponent(housing     || '')}`
+  + `&employment=${encodeURIComponent(employment  || '')}`
+  + `&income=${encodeURIComponent(income      || '')}`
+  + `&first_name=${encodeURIComponent(firstName   || '')}`
+  + `&last_name=${encodeURIComponent(lastName    || '')}`
+  + `&birth_month=${encodeURIComponent(birthMonth  || '')}`
+  + `&birth_day=${encodeURIComponent(birthDay    || '')}`
+  + `&birth_year=${encodeURIComponent(birthYear   || '')}`;
+---
+<FormLayout currentStep="phone" title="What's your phone number?">
+  <form method="GET" action={nextUrl} class="loan-form" novalidate>
+    <!-- carry forward all prior steps -->
+    <input type="hidden" name="loan_reason"  value={loanReason} />
+    <input type="hidden" name="loan_amount"  value={loanAmount} />
+    <input type="hidden" name="housing"      value={housing} />
+    <input type="hidden" name="employment"   value={employment} />
+    <input type="hidden" name="income"       value={income} />
+    <input type="hidden" name="first_name"   value={firstName} />
+    <input type="hidden" name="last_name"    value={lastName} />
+    <input type="hidden" name="birth_month"  value={birthMonth} />
+    <input type="hidden" name="birth_day"    value={birthDay} />
+    <input type="hidden" name="birth_year"   value={birthYear} />
+
+    <div class="form-group">
+      <!-- visible only for formatting, no name attribute -->
+      <input
+        type="tel"
+        id="phone"
+        required
+        autocomplete="tel"
+        placeholder="(555) 123-4567"
+        maxlength="14"
+        value={previousPhone}
+      />
+      <!-- hidden field carries the real phone value -->
+      <input type="hidden" id="phone_raw" name="phone" value={previousPhone} />
+      <div class="field-hint">
+        For account security and notifications
+      </div>
+    </div>
+
+    <div class="trust-message">
+      <div class="lock-icon">🔒</div>
+      <p>Your information is protected with bank-level security</p>
+    </div>
+
+    <div class="form-actions">
+      <a
+        href={`/form/dob`
+          + `?loan_reason=${encodeURIComponent(loanReason  || '')}`
+          + `&loan_amount=${encodeURIComponent(loanAmount  || '')}`
+          + `&housing=${encodeURIComponent(housing     || '')}`
+          + `&employment=${encodeURIComponent(employment  || '')}`
+          + `&income=${encodeURIComponent(income      || '')}`
+          + `&first_name=${encodeURIComponent(firstName   || '')}`
+          + `&last_name=${encodeURIComponent(lastName    || '')}`
+          + `&birth_month=${encodeURIComponent(birthMonth  || '')}`
+          + `&birth_day=${encodeURIComponent(birthDay    || '')}`
+          + `&birth_year=${encodeURIComponent(birthYear   || '')}`}
+        class="button button-back"
+      >
+        Back
+      </a>
+      <button type="submit" class="button">Continue</button>
+    </div>
+  </form>
+</FormLayout>
+
+<script type="module">
+  import { formatPhoneNumber } from '../../lib/form-utils';
+  import { validatePhone } from '../../lib/form-validation';
+
+  console.log('DEBUG: Phone page loaded');
+  console.log('DEBUG: Session state:', JSON.parse(sessionStorage.getItem('form-state') || '{}'));
+
+  const form = document.querySelector('.loan-form');
+  const phoneInput = document.getElementById('phone');
+  const phoneRaw   = document.getElementById('phone_raw');
+
+  // Format as the user types
+  phoneInput.addEventListener('input', (e) => {
+    const formatted = formatPhoneNumber(e.target.value);
+    e.target.value = formatted;
+    phoneRaw.value = formatted;
+    phoneInput.setCustomValidity('');
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const val = phoneRaw.value;
+    console.log('DEBUG: Phone submit with value:', val);
+
+    if (!validatePhone(val)) {
+      phoneInput.setCustomValidity('Please enter a valid 10-digit phone number');
+      phoneInput.reportValidity();
+      console.log('DEBUG: Phone validation failed');
+      return;
+    }
+
+    // Add phone to action URL
+    const url = new URL(form.action);
+    url.searchParams.set('phone', val);
+    form.action = url.toString();
+    console.log('DEBUG: Updated action URL:', form.action);
+
+    // Persist in sessionStorage
+    const state = JSON.parse(sessionStorage.getItem('form-state') || '{}');
+    state.phone = val;
+    sessionStorage.setItem('form-state', JSON.stringify(state));
+    console.log('DEBUG: State after save:', state);
+
+    // Submit the form with hidden field in place
+    form.submit();
+  });
+</script>
+
+<style>
+  .form-group {
+    margin-bottom: 2rem;
+    position: relative;
+  }
+  input[type='tel'] {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    font-size: 1.25rem;
+    text-align: center;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+  }
+  input[type='tel']:hover {
+    border-color: var(--color-accent);
+  }
+  input[type='tel']:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    background-color: rgba(255,255,255,0.1);
+  }
+  .field-hint {
+    margin-top: 0.75rem;
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    text-align: center;
+  }
+  .trust-message {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255,255,255,0.05);
+    border-radius: 0.75rem;
+    margin-bottom: 2rem;
+  }
+  .lock-icon {
+    font-size: 1.25rem;
+  }
+  .trust-message p {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    margin: 0;
+  }
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+  }
+  .button {
+    flex: 1;
+    background: var(--color-accent);
+    color: var(--color-background);
+    padding: 1rem;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    text-decoration: none;
+  }
+  .button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+  .button-back {
+    background: rgba(255,255,255,0.1);
+    color: var(--color-text);
+  }
+  @media (max-width: 768px) {
+    input[type='tel'] {
+      font-size: 1.125rem;
+    }
+  }
+</style>

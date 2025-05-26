@@ -1,0 +1,227 @@
+---
+import FormLayout from '../../components/FormLayout.astro';
+import { saveFormState, getFormValue } from '../../lib/form-state';
+
+// Pull everything from URL
+const loanReason  = Astro.url.searchParams.get('loan_reason');
+const loanAmount  = Astro.url.searchParams.get('loan_amount');
+const housing     = Astro.url.searchParams.get('housing');
+const employment  = Astro.url.searchParams.get('employment');
+const income      = Astro.url.searchParams.get('income');
+const firstName   = Astro.url.searchParams.get('first_name');
+const lastName    = Astro.url.searchParams.get('last_name');
+
+// Once we have all of those, persist them
+if (
+  loanReason &&
+  loanAmount &&
+  housing &&
+  employment &&
+  income &&
+  firstName &&
+  lastName
+) {
+  saveFormState({
+    loan_reason:  loanReason,
+    loan_amount:  loanAmount,
+    housing,
+    employment,
+    income,
+    first_name:   firstName,
+    last_name:    lastName,
+  });
+}
+
+// Prefill if coming back
+const previousMonth = getFormValue('birth_month') || '';
+const previousDay   = getFormValue('birth_day')   || '';
+const previousYear  = getFormValue('birth_year')  || '';
+
+// Build the next‐step URL (it will get the three new fields appended automatically)
+const nextUrl =
+  `/form/phone`
+  + `?loan_reason=${encodeURIComponent(loanReason  || '')}`
+  + `&loan_amount=${encodeURIComponent(loanAmount  || '')}`
+  + `&housing=${encodeURIComponent(housing     || '')}`
+  + `&employment=${encodeURIComponent(employment  || '')}`
+  + `&income=${encodeURIComponent(income      || '')}`
+  + `&first_name=${encodeURIComponent(firstName   || '')}`
+  + `&last_name=${encodeURIComponent(lastName    || '')}`;
+---
+<FormLayout currentStep="dob" title="What's your date of birth?">
+  <form method="GET" action={nextUrl} class="loan-form" novalidate>
+    <!-- carry forward all prior steps -->
+    <input type="hidden" name="loan_reason" value={loanReason} />
+    <input type="hidden" name="loan_amount" value={loanAmount} />
+    <input type="hidden" name="housing"     value={housing} />
+    <input type="hidden" name="employment"  value={employment} />
+    <input type="hidden" name="income"      value={income} />
+    <input type="hidden" name="first_name"  value={firstName} />
+    <input type="hidden" name="last_name"   value={lastName} />
+
+    <div class="dob-inputs">
+      <div class="form-group">
+        <label for="month">Month</label>
+        <input
+          id="month"
+          type="tel"
+          inputmode="numeric"
+          pattern="\d*"
+          placeholder="MM"
+          maxlength="2"
+          min="1"
+          max="12"
+          required
+          value={previousMonth}
+        />
+        <input type="hidden" name="birth_month" value={previousMonth} />
+      </div>
+      <div class="form-group">
+        <label for="day">Day</label>
+        <input
+          id="day"
+          type="tel"
+          inputmode="numeric"
+          pattern="\d*"
+          placeholder="DD"
+          maxlength="2"
+          min="1"
+          max="31"
+          required
+          value={previousDay}
+        />
+        <input type="hidden" name="birth_day" value={previousDay} />
+      </div>
+      <div class="form-group">
+        <label for="year">Year</label>
+        <input
+          id="year"
+          type="tel"
+          inputmode="numeric"
+          pattern="\d*"
+          placeholder="YYYY"
+          maxlength="4"
+          min={new Date().getFullYear() - 100}
+          max={new Date().getFullYear() - 18}
+          required
+          value={previousYear}
+        />
+        <input type="hidden" name="birth_year" value={previousYear} />
+      </div>
+    </div>
+
+    <div class="trust-message">
+      <div class="lock-icon">🔒</div>
+      <p>Your information is protected with bank-level security</p>
+    </div>
+
+    <button type="submit" class="button">Continue</button>
+  </form>
+</FormLayout>
+
+<script>
+  /** Returns true if MM/DD/YYYY is a real date and age ≥ 18 */
+  function validateDOB(month, day, year) {
+    const m = parseInt(month, 10);
+    const d = parseInt(day, 10);
+    const y = parseInt(year, 10);
+    if (!(m >= 1 && m <= 12)) return false;
+    const daysInMonth = new Date(y, m, 0).getDate();
+    if (!(d >= 1 && d <= daysInMonth)) return false;
+    const now = new Date();
+    const minYear = now.getFullYear() - 100;
+    const maxYear = now.getFullYear() - 18;
+    if (!(y >= minYear && y <= maxYear)) return false;
+    const birth = new Date(y, m - 1, d);
+    let age = now.getFullYear() - birth.getFullYear();
+    const mo = now.getMonth() - birth.getMonth();
+    if (mo < 0 || (mo === 0 && now.getDate() < birth.getDate())) age--;
+    return age >= 18;
+  }
+
+  document.querySelector('.loan-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const m = document.getElementById('month').value;
+    const d = document.getElementById('day').value;
+    const y = document.getElementById('year').value;
+
+    if (!validateDOB(m, d, y)) {
+      alert('Please enter a valid date of birth. You must be at least 18 years old.');
+      return;
+    }
+
+    // merge into sessionStorage
+    const state = JSON.parse(sessionStorage.getItem('form-state') || '{}');
+    state.birth_month = m;
+    state.birth_day   = d;
+    state.birth_year  = y;
+    sessionStorage.setItem('form-state', JSON.stringify(state));
+
+    // native submit will carry hidden birth_month/day/year
+    e.target.submit();
+  });
+</script>
+
+<style>
+  .dob-inputs {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+  .form-group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  label {
+    margin-bottom: 0.25rem;
+    font-size: 0.875rem;
+  }
+  input[type='tel'] {
+    padding: 1rem;
+    font-size: 1rem;
+    border: 1px solid var(--color-border);
+    border-radius: 0.5rem;
+    background: rgba(255,255,255,0.05);
+  }
+  input[type='tel']:hover {
+    border-color: var(--color-accent);
+  }
+  input[type='tel']:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    background: rgba(255,255,255,0.1);
+  }
+  .trust-message {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: rgba(255,255,255,0.05);
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .lock-icon {
+    font-size: 1.25rem;
+  }
+  .trust-message p {
+    margin: 0;
+    font-size: 0.875rem;
+  }
+  .button {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--color-accent);
+    color: var(--color-background);
+    transition: all 0.2s;
+  }
+  .button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+</style>

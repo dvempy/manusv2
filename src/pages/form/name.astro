@@ -1,0 +1,215 @@
+---
+import FormLayout from '../../components/FormLayout.astro';
+import { saveFormState, getFormValue } from '../../lib/form-state';
+
+// Grab everything from the URL so we can carry it forward
+const loanReason   = Astro.url.searchParams.get('loan_reason');
+const loanAmount   = Astro.url.searchParams.get('loan_amount');
+const housing      = Astro.url.searchParams.get('housing');
+const employment   = Astro.url.searchParams.get('employment');
+const income       = Astro.url.searchParams.get('income');
+
+// Persist prior steps once complete
+if (loanReason && loanAmount && housing && employment && income) {
+  saveFormState({
+    loan_reason: loanReason,
+    loan_amount: loanAmount,
+    housing,
+    employment,
+    income
+  });
+}
+
+// Prefill if user navigates back
+const previousFirstName = getFormValue('first_name') || '';
+const previousLastName  = getFormValue('last_name')  || '';
+
+// Build the next-step URL with prior params only
+const nextUrl = `/form/dob`
+  + `?loan_reason=${encodeURIComponent(loanReason  || '')}`
+  + `&loan_amount=${encodeURIComponent(loanAmount  || '')}`
+  + `&housing=${encodeURIComponent(housing     || '')}`
+  + `&employment=${encodeURIComponent(employment  || '')}`
+  + `&income=${encodeURIComponent(income      || '')}`;
+---
+<FormLayout currentStep="name" title="What's your name?">
+  <form method="GET" action={nextUrl} class="loan-form">
+    <!-- carry-forward prior values -->
+    <input type="hidden" name="loan_reason" value={loanReason} />
+    <input type="hidden" name="loan_amount" value={loanAmount} />
+    <input type="hidden" name="housing"     value={housing} />
+    <input type="hidden" name="employment"  value={employment} />
+    <input type="hidden" name="income"      value={income} />
+    <!-- hidden fields carry name values -->
+    <input type="hidden" id="first_name_raw" name="first_name" value={previousFirstName} />
+    <input type="hidden" id="last_name_raw"  name="last_name"  value={previousLastName} />
+
+    <div class="name-grid">
+      <div class="form-group">
+        <input
+          type="text"
+          id="first_name"
+          required
+          autocomplete="given-name"
+          placeholder="First name"
+          value={previousFirstName}
+        />
+      </div>
+
+      <div class="form-group">
+        <input
+          type="text"
+          id="last_name"
+          required
+          autocomplete="family-name"
+          placeholder="Last name"
+          value={previousLastName}
+        />
+      </div>
+    </div>
+
+    <div class="trust-message">
+      <div class="lock-icon">🔒</div>
+      <p>Your information is protected with bank-level security</p>
+    </div>
+
+    <div class="form-actions">
+      <a
+        href={`/form/income`
+          + `?loan_reason=${encodeURIComponent(loanReason||'')}`
+          + `&loan_amount=${encodeURIComponent(loanAmount||'')}`
+          + `&housing=${encodeURIComponent(housing||'')}`
+          + `&employment=${encodeURIComponent(employment||'')}`
+          + `&income=${encodeURIComponent(income||'')}`}
+        class="button button-back"
+      >
+        Back
+      </a>
+      <button type="submit" class="button">Continue</button>
+    </div>
+  </form>
+</FormLayout>
+
+<script>
+  const form = document.querySelector('.loan-form');
+  const fnInput = document.getElementById('first_name');
+  const lnInput = document.getElementById('last_name');
+  const fnRaw   = document.getElementById('first_name_raw');
+  const lnRaw   = document.getElementById('last_name_raw');
+
+  form.addEventListener('submit', (e) => {
+    const first = fnInput.value.trim();
+    const last  = lnInput.value.trim();
+    if (!first || !last) {
+      e.preventDefault();
+      return false;
+    }
+
+    // update hidden inputs
+    fnRaw.value = first;
+    lnRaw.value = last;
+
+    // update URL params
+    const url = new URL(form.action);
+    url.searchParams.set('first_name', first);
+    url.searchParams.set('last_name', last);
+    form.action = url.toString();
+
+    // persist in sessionStorage
+    const state = JSON.parse(sessionStorage.getItem('form-state') || '{}');
+    state.first_name = first;
+    state.last_name  = last;
+    sessionStorage.setItem('form-state', JSON.stringify(state));
+  });
+</script>
+
+<style>
+  .name-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  input[type='text'] {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+
+  input[type='text']:hover {
+    border-color: var(--color-accent);
+  }
+
+  input[type='text']:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .trust-message {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .lock-icon {
+    font-size: 1.25rem;
+  }
+
+  .trust-message p {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    margin: 0;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .button {
+    flex: 1;
+    background: var(--color-accent);
+    color: var(--color-background);
+    padding: 1rem;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    text-align: center;
+  }
+
+  .button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+
+  .button-back {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-text);
+  }
+
+  @media (max-width: 768px) {
+    .name-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+  }
+</style>

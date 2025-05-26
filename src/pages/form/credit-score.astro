@@ -1,0 +1,278 @@
+---
+import Layout from '../../layouts/Layout.astro';
+
+// Get previous form data from query params
+const loanReason = Astro.url.searchParams.get('loan_reason');
+const loanAmount = Astro.url.searchParams.get('loan_amount_raw');
+---
+
+<Layout>
+  <main>
+    <div class="container">
+      <div class="form-wrapper">
+        <div class="progress">
+          <div class="progress-text">Step 2 of 6</div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: 33.33%"></div>
+          </div>
+        </div>
+
+        <form class="loan-form" method="GET" action="/form/employment">
+          <!-- Carry forward previous data -->
+          <input type="hidden" name="loan_reason" value={loanReason} />
+          <input type="hidden" name="loan_amount" value={loanAmount} />
+
+          <div class="form-section">
+            <h1>What's your credit score?</h1>
+            <p class="subtitle">Select your estimated credit score range</p>
+
+            <div class="credit-score-grid">
+              <label class="score-option">
+                <input type="radio" name="credit_score" value="excellent" required />
+                <div class="score-content">
+                  <div class="score-range">Excellent</div>
+                  <div class="score-number">720+</div>
+                </div>
+              </label>
+
+              <label class="score-option">
+                <input type="radio" name="credit_score" value="good" required />
+                <div class="score-content">
+                  <div class="score-range">Good</div>
+                  <div class="score-number">680-719</div>
+                </div>
+              </label>
+
+              <label class="score-option">
+                <input type="radio" name="credit_score" value="fair" required />
+                <div class="score-content">
+                  <div class="score-range">Fair</div>
+                  <div class="score-number">640-679</div>
+                </div>
+              </label>
+
+              <label class="score-option">
+                <input type="radio" name="credit_score" value="poor" required />
+                <div class="score-content">
+                  <div class="score-range">Poor</div>
+                  <div class="score-number">580-639</div>
+                </div>
+              </label>
+
+              <label class="score-option">
+                <input type="radio" name="credit_score" value="bad" required />
+                <div class="score-content">
+                  <div class="score-range">Bad</div>
+                  <div class="score-number">Below 580</div>
+                </div>
+              </label>
+
+              <label class="score-option">
+                <input type="radio" name="credit_score" value="unknown" required />
+                <div class="score-content">
+                  <div class="score-range">Not Sure</div>
+                  <div class="score-number">I don't know</div>
+                </div>
+              </label>
+            </div>
+
+            <div class="trust-message">
+              <div class="lock-icon">🔒</div>
+              <p>Just an estimate — this won't affect your credit score</p>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <a href="/form/loan-amount" class="button button-back">Back</a>
+            <button type="submit" class="button">Continue</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  // Highlight selected option
+  document.querySelectorAll('.score-option').forEach((option) => {
+    const radio = option.querySelector('input[type="radio"]');
+
+    radio.addEventListener('change', () => {
+      document.querySelectorAll('.score-option').forEach((o) => {
+        o.classList.remove('selected');
+      });
+      if (radio.checked) {
+        option.classList.add('selected');
+      }
+    });
+  });
+</script>
+
+<style>
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem var(--container-padding);
+  }
+
+  .form-wrapper {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-border);
+    border-radius: 1.25rem;
+    padding: 2rem;
+  }
+
+  .progress {
+    margin-bottom: 2rem;
+  }
+
+  .progress-text {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .progress-bar {
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--color-accent);
+    transition: width 0.3s ease;
+  }
+
+  .form-section {
+    margin-bottom: 2rem;
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    color: var(--color-muted);
+    margin-bottom: 2rem;
+    font-size: 0.875rem;
+  }
+
+  .credit-score-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .score-option {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .score-option input[type='radio'] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  .score-content {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    transition: all 0.2s;
+  }
+
+  .score-option:hover .score-content {
+    border-color: var(--color-accent);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .score-option.selected .score-content {
+    border-color: var(--color-accent);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .score-range {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--color-text);
+  }
+
+  .score-number {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+  }
+
+  .trust-message {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.75rem;
+  }
+
+  .lock-icon {
+    font-size: 1.25rem;
+  }
+
+  .trust-message p {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    margin: 0;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .button {
+    flex: 1;
+    background: var(--color-accent);
+    color: var(--color-background);
+    padding: 1rem;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+
+  .button-back {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-text);
+  }
+
+  @media (max-width: 768px) {
+    .form-wrapper {
+      padding: 1.5rem;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+    }
+
+    .credit-score-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+  }
+</style>

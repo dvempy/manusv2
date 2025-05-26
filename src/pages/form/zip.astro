@@ -1,0 +1,237 @@
+---
+import FormLayout from '../../components/FormLayout.astro';
+import { saveFormState, getFormValue } from '../../lib/form-state';
+
+// Get previous form data from query params
+const loanReason  = Astro.url.searchParams.get('loan_reason');
+const loanAmount  = Astro.url.searchParams.get('loan_amount');
+const housing     = Astro.url.searchParams.get('housing');
+const employment  = Astro.url.searchParams.get('employment');
+const income      = Astro.url.searchParams.get('income');
+const firstName   = Astro.url.searchParams.get('first_name');
+const lastName    = Astro.url.searchParams.get('last_name');
+const phone       = Astro.url.searchParams.get('phone');
+
+// Once we have all prior steps, persist them
+if (
+  loanReason &&
+  loanAmount &&
+  housing &&
+  employment &&
+  income &&
+  firstName &&
+  lastName &&
+  phone
+) {
+  saveFormState({
+    loan_reason: loanReason,
+    loan_amount: loanAmount,
+    housing,
+    employment,
+    income,
+    first_name: firstName,
+    last_name: lastName,
+    phone,
+  });
+}
+
+// Prefill if user returned here
+const previousZip = getFormValue('zip') || '';
+
+// Build the next‐step URL (email page)
+const nextUrl = `/form/email`
+  + `?loan_reason=${encodeURIComponent(loanReason  || '')}`
+  + `&loan_amount=${encodeURIComponent(loanAmount  || '')}`
+  + `&housing=${encodeURIComponent(housing     || '')}`
+  + `&employment=${encodeURIComponent(employment  || '')}`
+  + `&income=${encodeURIComponent(income      || '')}`
+  + `&first_name=${encodeURIComponent(firstName   || '')}`
+  + `&last_name=${encodeURIComponent(lastName    || '')}`
+  + `&phone=${encodeURIComponent(phone        || '')}`;
+---
+<FormLayout currentStep="zip" title="What's your ZIP code?">
+  <form method="GET" action={nextUrl} class="loan-form" novalidate>
+    <!-- Carry forward prior steps -->
+    <input type="hidden" name="loan_reason" value={loanReason} />
+    <input type="hidden" name="loan_amount" value={loanAmount} />
+    <input type="hidden" name="housing"     value={housing} />
+    <input type="hidden" name="employment"  value={employment} />
+    <input type="hidden" name="income"      value={income} />
+    <input type="hidden" name="first_name"  value={firstName} />
+    <input type="hidden" name="last_name"   value={lastName} />
+    <input type="hidden" name="phone"       value={phone} />
+
+    <div class="form-group">
+      <!-- visible-only for formatting, no name -->
+      <input
+        type="text"
+        id="zip"
+        inputmode="numeric"
+        maxlength="5"
+        placeholder="12345"
+        required
+        pattern="\d{5}"
+        value={previousZip}
+      />
+      <!-- hidden carries the raw 5-digit ZIP -->
+      <input type="hidden" id="zip_raw" name="zip" value={previousZip} />
+      <div class="field-hint">
+        We'll use this to find the best loan offers in your area.
+      </div>
+    </div>
+
+    <div class="trust-message">
+      <div class="lock-icon">🔒</div>
+      <p>Your information is protected with bank-level security</p>
+    </div>
+
+    <div class="form-actions">
+      <a
+        href={`/form/phone`
+          + `?loan_reason=${encodeURIComponent(loanReason  || '')}`
+          + `&loan_amount=${encodeURIComponent(loanAmount  || '')}`
+          + `&housing=${encodeURIComponent(housing     || '')}`
+          + `&employment=${encodeURIComponent(employment  || '')}`
+          + `&income=${encodeURIComponent(income      || '')}`
+          + `&first_name=${encodeURIComponent(firstName   || '')}`
+          + `&last_name=${encodeURIComponent(lastName    || '')}`
+          + `&phone=${encodeURIComponent(phone        || '')}`}
+        class="button button-back"
+      >
+        Back
+      </a>
+      <button type="submit" class="button">Continue</button>
+    </div>
+  </form>
+</FormLayout>
+
+<script>
+  /** Returns true if exactly 5 digits */
+  function validateZip(z) {
+    return /^\d{5}$/.test(z);
+  }
+
+  const form     = document.querySelector('.loan-form');
+  const zipInput = document.getElementById('zip');
+  const zipRaw   = document.getElementById('zip_raw');
+
+  // Sanitize on input & mirror to hidden
+  zipInput.addEventListener('input', (e) => {
+    const raw = e.target.value.replace(/\D/g, '').slice(0, 5);
+    e.target.value = raw;
+    zipRaw.value = raw;
+    zipInput.setCustomValidity('');
+  });
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const z = zipRaw.value;
+    if (!validateZip(z)) {
+      zipInput.setCustomValidity('Please enter a valid 5-digit ZIP code');
+      return zipInput.reportValidity();
+    }
+
+    // Persist to sessionStorage
+    const state = JSON.parse(sessionStorage.getItem('form-state') || '{}');
+    state.zip = z;
+    sessionStorage.setItem('form-state', JSON.stringify(state));
+
+    // Append zip to action URL and submit
+    const url = new URL(form.action);
+    url.searchParams.set('zip', z);
+    form.action = url.toString();
+    form.submit();
+  });
+</script>
+
+<style>
+  .form-group {
+    margin-bottom: 2rem;
+    position: relative;
+  }
+
+  input[type='text'] {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    padding: 1rem 1.25rem;
+    border-radius: 0.75rem;
+    font-size: 1.25rem;
+    text-align: center;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+  }
+
+  input[type='text']:hover {
+    border-color: var(--color-accent);
+  }
+
+  input[type='text']:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .field-hint {
+    margin-top: 0.75rem;
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    text-align: center;
+  }
+
+  .trust-message {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .lock-icon {
+    font-size: 1.25rem;
+  }
+
+  .trust-message p {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    margin: 0;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .button {
+    flex: 1;
+    background: var(--color-accent);
+    color: var(--color-background);
+    padding: 1rem;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.2s;
+  }
+
+  .button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+
+  .button-back {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-text);
+  }
+
+  @media (max-width: 768px) {
+    input[type='text'] {
+      font-size: 1.125rem;
+    }
+  }
+</style>

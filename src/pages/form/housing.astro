@@ -1,0 +1,276 @@
+---
+import FormLayout from '../../components/FormLayout.astro';
+import { saveFormState, getFormValue } from '../../lib/form-state';
+
+// Get previous form data from query params
+const loanReason = Astro.url.searchParams.get('loan_reason');
+const loanAmount = Astro.url.searchParams.get('loan_amount');
+
+// Save to form state
+if (loanReason && loanAmount) {
+  saveFormState({ loan_reason: loanReason, loan_amount: loanAmount });
+}
+
+// Get previous value if it exists
+const previousHousing = getFormValue('housing');
+---
+
+<FormLayout currentStep="housing" title="What's your housing situation?">
+  <p class="subtitle">Select your current living arrangement</p>
+
+  <form
+    method="GET"
+    action={`/form/employment?loan_reason=${encodeURIComponent(loanReason || '')}&loan_amount=${encodeURIComponent(loanAmount || '')}`}
+    class="loan-form"
+  >
+    <!-- Carry forward previous data -->
+    <input type="hidden" name="loan_reason"  value={loanReason} />
+    <input type="hidden" name="loan_amount"  value={loanAmount} />
+
+    <div class="housing-grid">
+      <label class="housing-option">
+        <input
+          type="radio"
+          name="housing"
+          value="own_paid"
+          required
+          checked={previousHousing === 'own_paid'}
+        />
+        <div class="housing-content">
+          <div class="housing-icon">🏡</div>
+          <div class="housing-text">
+            <div class="housing-type">Own, paid off</div>
+            <div class="housing-desc">No remaining payments</div>
+          </div>
+        </div>
+      </label>
+
+      <label class="housing-option">
+        <input
+          type="radio"
+          name="housing"
+          value="own_mortgage"
+          required
+          checked={previousHousing === 'own_mortgage'}
+        />
+        <div class="housing-content">
+          <div class="housing-icon">🏦</div>
+          <div class="housing-text">
+            <div class="housing-type">Own, with mortgage</div>
+            <div class="housing-desc">Monthly mortgage</div>
+          </div>
+        </div>
+      </label>
+
+      <label class="housing-option">
+        <input
+          type="radio"
+          name="housing"
+          value="rent"
+          required
+          checked={previousHousing === 'rent'}
+        />
+        <div class="housing-content">
+          <div class="housing-icon">🔑</div>
+          <div class="housing-text">
+            <div class="housing-type">Rent</div>
+            <div class="housing-desc">You pay monthly rent</div>
+          </div>
+        </div>
+      </label>
+
+      <label class="housing-option">
+        <input
+          type="radio"
+          name="housing"
+          value="other"
+          required
+          checked={previousHousing === 'other'}
+        />
+        <div class="housing-content">
+          <div class="housing-icon">🧑‍🤝‍🧑</div>
+          <div class="housing-text">
+            <div class="housing-type">Other</div>
+            <div class="housing-desc">Living with family, etc</div>
+          </div>
+        </div>
+      </label>
+    </div>
+
+    <div class="trust-message">
+      <div class="lock-icon">🔒</div>
+      <p>This helps us match you with the right loan options</p>
+    </div>
+
+    <div class="form-actions">
+      <a href={`/form/loan-amount?loan_reason=${encodeURIComponent(loanReason || '')}`} class="button button-back"
+        >Back</a
+      >
+      <button type="submit" class="button">Continue</button>
+    </div>
+  </form>
+</FormLayout>
+
+<script>
+  // Highlight selected option
+  document.querySelectorAll('.housing-option').forEach((option) => {
+    const radio = option.querySelector('input[type="radio"]');
+
+    if (radio.checked) {
+      option.classList.add('selected');
+    }
+
+    radio.addEventListener('change', () => {
+      document.querySelectorAll('.housing-option').forEach((o) => {
+        o.classList.remove('selected');
+      });
+      if (radio.checked) {
+        option.classList.add('selected');
+      }
+    });
+  });
+
+  // Form submission handling
+  document.querySelector('.loan-form').addEventListener('submit', (e) => {
+    const housing = document.querySelector('input[name="housing"]:checked');
+    if (!housing) {
+      e.preventDefault();
+      return false;
+    }
+
+    // Save to form state
+    sessionStorage.setItem(
+      'form-state',
+      JSON.stringify({
+        ...JSON.parse(sessionStorage.getItem('form-state') || '{}'),
+        housing: housing.value,
+      })
+    );
+  });
+</script>
+
+<style>
+  .subtitle {
+    color: var(--color-muted);
+    margin-bottom: 2rem;
+    font-size: 0.875rem;
+  }
+
+  .housing-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .housing-option {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .housing-option input[type='radio'] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+  }
+
+  .housing-content {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-border);
+    border-radius: 0.75rem;
+    padding: 1.25rem;
+    transition: all 0.2s;
+  }
+
+  .housing-option:hover .housing-content {
+    border-color: var(--color-accent);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .housing-option.selected .housing-content {
+    border-color: var(--color-accent);
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .housing-icon {
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .housing-text {
+    flex-grow: 1;
+  }
+
+  .housing-type {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+    color: var(--color-text);
+  }
+
+  .housing-desc {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+  }
+
+  .trust-message {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.75rem;
+    margin-bottom: 2rem;
+  }
+
+  .lock-icon {
+    font-size: 1.25rem;
+  }
+
+  .trust-message p {
+    color: var(--color-muted);
+    font-size: 0.875rem;
+    margin: 0;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .button {
+    flex: 1;
+    background: var(--color-accent);
+    color: var(--color-background);
+    padding: 1rem;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+    text-decoration: none;
+  }
+
+  .button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+
+  .button-back {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-text);
+  }
+
+  @media (max-width: 768px) {
+    .housing-grid {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+  }
+</style>

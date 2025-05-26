@@ -1,0 +1,64 @@
+---
+const gaId = 'G-P0XXNTVGT0';
+---
+
+<script define:vars={{ gaId }} type="module">
+  // Initialize dataLayer
+  window.dataLayer = window.dataLayer || [];
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+
+  // Load GA script asynchronously
+  const script = document.createElement('script');
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${gaId}`;
+  script.async = true;
+  document.head.appendChild(script);
+
+  // Initialize with minimal configuration
+  gtag('js', new Date());
+  gtag('config', gaId, {
+    send_page_view: false,
+    anonymize_ip: true,
+    cookie_flags: 'SameSite=None;Secure',
+    transport_type: 'beacon',
+  });
+
+  // Defer non-critical tracking
+  window.addEventListener('load', () => {
+    // Send initial pageview
+    gtag('event', 'page_view');
+
+    // Track core web vitals
+    if (window.webVitals) {
+      webVitals.getCLS((metric) => gtag('event', 'CLS', { value: metric.value }));
+      webVitals.getFID((metric) => gtag('event', 'FID', { value: metric.value }));
+      webVitals.getLCP((metric) => gtag('event', 'LCP', { value: metric.value }));
+    }
+  });
+
+  // Use requestIdleCallback for non-critical tracking
+  window.requestIdleCallback =
+    window.requestIdleCallback ||
+    function (cb) {
+      return setTimeout(() => {
+        cb({
+          didTimeout: false,
+          timeRemaining: function () {
+            return Infinity;
+          },
+        });
+      }, 1);
+    };
+
+  requestIdleCallback(() => {
+    gtag('config', gaId, {
+      enhanced_measurement: {
+        page_view: true,
+        scroll: true,
+        outbound_click: true,
+        file_download: true,
+      },
+    });
+  });
+</script>

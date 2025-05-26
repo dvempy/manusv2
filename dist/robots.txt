@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://approved-offers.com/sitemap-index.xml

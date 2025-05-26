@@ -1,0 +1,30 @@
+---
+export interface Props {
+  icon: string;
+  color?: string;
+  size?: number;
+  class?: string;
+}
+
+const { icon, color = 'white', size = 24, class: className } = Astro.props;
+
+const iconUrl = `https://api.iconify.design/${icon}?color=${encodeURIComponent(color)}`;
+---
+
+<img
+  src={iconUrl}
+  width={size}
+  height={size}
+  loading="lazy"
+  decoding="async"
+  class={className}
+  alt=""
+  role="presentation"
+/>
+
+<style>
+  img {
+    display: inline-block;
+    vertical-align: middle;
+  }
+</style>

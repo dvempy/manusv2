@@ -1,0 +1,320 @@
+---
+import Layout from '../layouts/Layout.astro';
+
+const loanReason = Astro.url.searchParams.get('loan_reason');
+---
+
+<Layout>
+  <main>
+    <div class="container">
+      <div class="form-wrapper">
+        <div class="steps">
+          <div class="step completed">1. Loan Purpose</div>
+          <div class="step active">2. Loan Details</div>
+          <div class="step">3. Personal Info</div>
+        </div>
+
+        <form class="loan-form" method="POST" action="/form/personal-info">
+          <input type="hidden" name="loan_reason" value={loanReason} />
+
+          <div class="form-section">
+            <h2>How much would you like to borrow?</h2>
+
+            <div class="form-group">
+              <label for="loan_amount">Loan amount</label>
+              <div class="amount-input">
+                <span class="currency">$</span>
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  id="loan_amount"
+                  name="loan_amount"
+                  data-min="1000"
+                  data-max="50000"
+                  placeholder="5,000"
+                  required
+                  pattern="^\$?\d{1,3}(,\d{3})*(\.\d+)?$"
+                />
+                <input type="hidden" id="loan_amount_raw" name="loan_amount_raw" />
+              </div>
+              <div class="amount-range">$1,000 - $50,000</div>
+            </div>
+
+            <div class="form-group">
+              <label for="credit_score">What's your credit score?</label>
+              <select id="credit_score" name="credit_score" required>
+                <option value="" disabled selected>Select your credit score range</option>
+                <option value="excellent">Excellent (720+)</option>
+                <option value="good">Good (680-719)</option>
+                <option value="fair">Fair (640-679)</option>
+                <option value="poor">Poor (580-639)</option>
+                <option value="bad">Bad (Below 580)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="employment">Employment status</label>
+              <select id="employment" name="employment" required>
+                <option value="" disabled selected>Select your employment status</option>
+                <option value="full_time">Full-time employed</option>
+                <option value="part_time">Part-time employed</option>
+                <option value="self_employed">Self-employed</option>
+                <option value="retired">Retired</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="income">Annual income</label>
+              <div class="amount-input">
+                <span class="currency">$</span>
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  id="income"
+                  name="income"
+                  placeholder="50,000"
+                  required
+                  pattern="^\$?\d{1,3}(,\d{3})*(\.\d+)?$"
+                />
+                <input type="hidden" id="income_raw" name="income_raw" />
+              </div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <a href="/" class="button button-back">Back</a>
+            <button type="submit" class="button">Continue</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  function formatNumber(value) {
+    // Remove any non-digit characters
+    const number = value.replace(/\D/g, '');
+
+    // Convert to number and format with commas
+    return new Intl.NumberFormat('en-US').format(number);
+  }
+
+  function handleAmountInput(input, hiddenInput) {
+    let cursorPosition = input.selectionStart;
+    const previousLength = input.value.length;
+
+    // Get the raw number
+    let value = input.value.replace(/\D/g, '');
+
+    // Format the number
+    const formatted = formatNumber(value);
+    input.value = formatted;
+
+    // Store raw value in hidden input
+    hiddenInput.value = value;
+
+    // Adjust cursor position after formatting
+    const addedChars = input.value.length - previousLength;
+    cursorPosition += addedChars;
+    input.setSelectionRange(cursorPosition, cursorPosition);
+
+    // Validate min/max if specified
+    if (input.dataset.min || input.dataset.max) {
+      const numValue = parseInt(value) || 0;
+      const min = parseInt(input.dataset.min) || 0;
+      const max = parseInt(input.dataset.max) || Infinity;
+
+      if (numValue < min) {
+        input.setCustomValidity(`Minimum amount is $${formatNumber(min.toString())}`);
+      } else if (numValue > max) {
+        input.setCustomValidity(`Maximum amount is $${formatNumber(max.toString())}`);
+      } else {
+        input.setCustomValidity('');
+      }
+    }
+  }
+
+  // Set up amount formatting for loan amount
+  const loanAmountInput = document.getElementById('loan_amount');
+  const loanAmountRaw = document.getElementById('loan_amount_raw');
+  if (loanAmountInput && loanAmountRaw) {
+    loanAmountInput.addEventListener('input', () =>
+      handleAmountInput(loanAmountInput, loanAmountRaw)
+    );
+    loanAmountInput.addEventListener('focus', () => {
+      if (!loanAmountInput.value) {
+        loanAmountInput.value = '';
+      }
+    });
+  }
+
+  // Set up amount formatting for income
+  const incomeInput = document.getElementById('income');
+  const incomeRaw = document.getElementById('income_raw');
+  if (incomeInput && incomeRaw) {
+    incomeInput.addEventListener('input', () => handleAmountInput(incomeInput, incomeRaw));
+    incomeInput.addEventListener('focus', () => {
+      if (!incomeInput.value) {
+        incomeInput.value = '';
+      }
+    });
+  }
+
+  // Form submission handling
+  document.querySelector('.loan-form').addEventListener('submit', (e) => {
+    const loanAmount = document.getElementById('loan_amount_raw').value;
+    const income = document.getElementById('income_raw').value;
+
+    if (!loanAmount || !income) {
+      e.preventDefault();
+      return false;
+    }
+  });
+</script>
+
+<style>
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 2rem var(--container-padding);
+  }
+
+  .form-wrapper {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-border);
+    border-radius: 1.25rem;
+    padding: 2rem;
+  }
+
+  .steps {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  .step {
+    flex: 1;
+    text-align: center;
+    color: var(--color-muted);
+    font-size: 0.875rem;
+  }
+
+  .step.completed {
+    color: var(--color-accent);
+  }
+
+  .step.active {
+    color: var(--color-text);
+  }
+
+  .form-section {
+    margin-bottom: 2rem;
+  }
+
+  .form-section h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--color-text);
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 1.5rem;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--color-muted);
+  }
+
+  .amount-input {
+    position: relative;
+  }
+
+  .currency {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-text);
+    font-weight: 500;
+  }
+
+  input[type='text'],
+  select {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    padding: 0.875rem 1.25rem;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+
+  input[type='text'] {
+    padding-left: 2.5rem;
+  }
+
+  input[type='text']:hover,
+  select:hover {
+    border-color: var(--color-accent);
+  }
+
+  input[type='text']:focus,
+  select:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .amount-range {
+    margin-top: 0.5rem;
+    color: var(--color-muted);
+    font-size: 0.875rem;
+  }
+
+  .form-actions {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .button {
+    flex: 1;
+    background: var(--color-accent);
+    color: var(--color-background);
+    padding: 1rem;
+    border: none;
+    border-radius: 0.75rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+
+  .button:hover {
+    opacity: 0.9;
+    transform: translateY(-2px);
+  }
+
+  .button-back {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--color-text);
+  }
+
+  @media (max-width: 768px) {
+    .form-wrapper {
+      padding: 1.5rem;
+    }
+
+    .steps {
+      font-size: 0.75rem;
+    }
+  }
+</style>

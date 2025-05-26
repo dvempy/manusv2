@@ -1,0 +1,397 @@
+---
+import FormLayout from '../../components/FormLayout.astro';
+import { saveFormState, getFormValue } from '../../lib/form-state';
+
+// 1) Pull in all previous steps from URL
+const loanReason  = Astro.url.searchParams.get('loan_reason');
+const loanAmount  = Astro.url.searchParams.get('loan_amount');
+const housing     = Astro.url.searchParams.get('housing');
+const employment  = Astro.url.searchParams.get('employment');
+const income      = Astro.url.searchParams.get('income');
+const firstName   = Astro.url.searchParams.get('first_name');
+const lastName    = Astro.url.searchParams.get('last_name');
+const phone       = Astro.url.searchParams.get('phone');
+const zip         = Astro.url.searchParams.get('zip');
+
+// 2) Once we have _all_ prior fields, save them into sessionStorage
+if (
+  loanReason &&
+  loanAmount &&
+  housing &&
+  employment &&
+  income &&
+  firstName &&
+  lastName &&
+  phone &&
+  zip
+) {
+  saveFormState({
+    loan_reason:  loanReason,
+    loan_amount:  loanAmount,
+    housing,
+    employment,
+    income,
+    first_name:   firstName,
+    last_name:    lastName,
+    phone,
+    zip,
+  });
+}
+
+// 3) Pre-fill email if user returns here
+const previousEmail = getFormValue('email');
+---
+
+<FormLayout currentStep="email" title="Last step! Where should we send your offers?">
+  <form
+    name="loan-application"
+    method="POST"
+    action="/thank-you"
+    data-netlify="true"
+    data-netlify-honeypot="bot-field"
+    class="loan-form"
+    novalidate
+  >
+    <!-- honeypot -->
+    <p hidden>
+      <label>
+        Don't fill this out if you're human:
+        <input name="bot-field" />
+      </label>
+    </p>
+    <!-- Netlify form name -->
+    <input type="hidden" name="form-name" value="loan-application" />
+
+    <!-- Add all hidden fields from previous steps -->
+    <input type="hidden" name="loan_reason" value={loanReason || getFormValue('loan_reason')} />
+    <input type="hidden" name="loan_amount" value={loanAmount || getFormValue('loan_amount')} />
+    <input type="hidden" name="housing" value={housing || getFormValue('housing')} />
+    <input type="hidden" name="employment" value={employment || getFormValue('employment')} />
+    <input type="hidden" name="income" value={income || getFormValue('income')} />
+    <input type="hidden" name="first_name" value={firstName || getFormValue('first_name')} />
+    <input type="hidden" name="last_name" value={lastName || getFormValue('last_name')} />
+    <input type="hidden" name="phone" value={phone || getFormValue('phone')} />
+    <input type="hidden" name="zip" value={zip || getFormValue('zip')} />
+
+    <div class="form-group">
+      <input
+        type="email"
+        id="email"
+        name="email"
+        required
+        autocomplete="email"
+        placeholder="you@example.com"
+        value={previousEmail ?? ''}
+      />
+      <div class="benefits">
+        <div class="benefit-item"><span class="check">✓</span><span>You'll get personalized offers instantly</span></div>
+        <div class="benefit-item"><span class="check">✓</span><span>No impact on your credit score</span></div>
+        <div class="benefit-item"><span class="check">✓</span><span>We'll never sell your information</span></div>
+      </div>
+    </div>
+
+    <div class="trust-message">
+      <div class="lock-icon">🔒</div>
+      <div class="trust-content">
+        <p class="trust-title">Bank-level encryption • 100% secure</p>
+        <p class="trust-text">Your data is protected and encrypted</p>
+      </div>
+    </div>
+
+    <button type="submit" class="button">
+      <span class="button-text">See My Offers</span>
+      <span class="arrow">→</span>
+    </button>
+  </form>
+
+  <!-- Loading overlay -->
+  <div class="loading-overlay" style="display: none;">
+    <div class="loading-content">
+      <div class="spinner"></div>
+      <div class="progress-container">
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+      </div>
+      <p class="loading-text">Verifying your options…</p>
+    </div>
+  </div>
+</FormLayout>
+
+<script>
+  const form           = document.querySelector('.loan-form');
+  const loadingOverlay = document.querySelector('.loading-overlay');
+  const progressFill   = document.querySelector('.progress-fill');
+  const loadingText    = document.querySelector('.loading-text');
+  const emailInput     = document.getElementById('email');
+
+  // Debug: Log the current form state at page load
+  console.log('Initial form state:', JSON.parse(sessionStorage.getItem('form-state') || '{}'));
+  
+  // Debug: Log the current hidden input values
+  const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
+  const hiddenValues = {};
+  hiddenInputs.forEach(input => {
+    hiddenValues[input.name] = input.value;
+  });
+  console.log('Initial hidden input values:', hiddenValues);
+
+  function validateEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // 1) Validate email
+    if (!validateEmail(emailInput.value)) {
+      emailInput.setCustomValidity('Please enter a valid email address');
+      emailInput.reportValidity();
+      return;
+    }
+
+    // 2) Save email into sessionStorage
+    const state = JSON.parse(sessionStorage.getItem('form-state') || '{}');
+    state.email = emailInput.value;
+    
+    // CRITICAL FIX: Always use the most recent values from hidden inputs
+    // This ensures we capture the latest values passed via URL parameters
+    const incomeInput = form.querySelector('input[name="income"]');
+    if (incomeInput && incomeInput.value) {
+      state.income = incomeInput.value;
+      console.log('Using income from hidden input:', incomeInput.value);
+    }
+    
+    const phoneInput = form.querySelector('input[name="phone"]');
+    if (phoneInput && phoneInput.value) {
+      state.phone = phoneInput.value;
+      console.log('Using phone from hidden input:', phoneInput.value);
+    }
+    
+    // Save the updated state
+    sessionStorage.setItem('form-state', JSON.stringify(state));
+    
+    // Debug: Log the state before showing loading overlay
+    console.log('Form state before loading:', state);
+
+    // 3) Show & animate loading overlay
+    loadingOverlay.style.display = 'flex';
+    loadingText.textContent      = 'Verifying your options…';
+    await animateProgress(30, 350);
+    loadingText.textContent      = 'Analyzing rates & terms…';
+    await animateProgress(70, 450);
+    loadingText.textContent      = 'Finalizing your offers…';
+    await animateProgress(100, 300);
+
+    // 4) Inject _all_ saved fields as hidden inputs
+    const allData = JSON.parse(sessionStorage.getItem('form-state') || '{}');
+    console.log('Final form state before submission:', allData);
+    
+    for (const [key, val] of Object.entries(allData)) {
+      // Skip empty values
+      if (!val) continue;
+      
+      // Check if the field already exists
+      let input = form.querySelector(`input[name="${key}"]`);
+      
+      // If it exists, update its value
+      if (input) {
+        input.value = val;
+        console.log(`Updated existing field ${key} = ${val}`);
+      } 
+      // Otherwise create a new hidden input
+      else {
+        const hidden = document.createElement('input');
+        hidden.type  = 'hidden';
+        hidden.name  = key;
+        hidden.value = val;
+        form.append(hidden);
+        console.log(`Added new field ${key} = ${val}`);
+      }
+    }
+    
+    // CRITICAL FIX: Ensure income and phone values are properly set from sessionStorage
+    // Never default to "0" or "0000000000" as these are invalid values
+    let incomeInput = form.querySelector('input[name="income"]');
+    if (!incomeInput || !incomeInput.value) {
+      // Get the most accurate income value from sessionStorage
+      const incomeValue = allData.income || "";
+      
+      if (incomeInput) {
+        incomeInput.value = incomeValue;
+        console.log(`Updated income field with value: ${incomeValue}`);
+      } else {
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = 'income';
+        hidden.value = incomeValue;
+        form.append(hidden);
+        console.log(`Created income field with value: ${incomeValue}`);
+      }
+    }
+    
+    let phoneInput = form.querySelector('input[name="phone"]');
+    if (!phoneInput || !phoneInput.value) {
+      // Get the most accurate phone value from sessionStorage
+      const phoneValue = allData.phone || "";
+      
+      if (phoneInput) {
+        phoneInput.value = phoneValue;
+        console.log(`Updated phone field with value: ${phoneValue}`);
+      } else {
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = 'phone';
+        hidden.value = phoneValue;
+        form.append(hidden);
+        console.log(`Created phone field with value: ${phoneValue}`);
+      }
+    }
+    
+    // Final verification - never submit with "0" or "0000000000"
+    const finalIncomeInput = form.querySelector('input[name="income"]');
+    if (finalIncomeInput && (finalIncomeInput.value === "0" || finalIncomeInput.value === "")) {
+      console.log("Warning: Income value is invalid, checking URL parameters");
+      // Try to get from URL parameters as last resort
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlIncome = urlParams.get('income');
+      if (urlIncome) {
+        finalIncomeInput.value = urlIncome;
+        console.log(`Fixed income from URL: ${urlIncome}`);
+      }
+    }
+    
+    const finalPhoneInput = form.querySelector('input[name="phone"]');
+    if (finalPhoneInput && (finalPhoneInput.value === "0000000000" || finalPhoneInput.value === "")) {
+      console.log("Warning: Phone value is invalid, checking URL parameters");
+      // Try to get from URL parameters as last resort
+      const urlParams = new URLSearchParams(window.location.search);
+      const urlPhone = urlParams.get('phone');
+      if (urlPhone) {
+        finalPhoneInput.value = urlPhone;
+        console.log(`Fixed phone from URL: ${urlPhone}`);
+      }
+    }
+    
+    // Final check of all form fields before submission
+    const finalHiddenInputs = form.querySelectorAll('input[type="hidden"]');
+    const finalValues = {};
+    finalHiddenInputs.forEach(input => {
+      finalValues[input.name] = input.value;
+    });
+    console.log('Final hidden input values before submission:', finalValues);
+
+    // 5) Finally submit natively so Netlify picks up every field
+    form.submit();
+  });
+
+  function animateProgress(targetPercent, duration) {
+    // Ensure we have a valid starting width
+    const currentWidth = progressFill.style.width;
+    const start = currentWidth ? parseInt(currentWidth) : 0;
+    
+    // Set initial width explicitly if it's not already set
+    if (!currentWidth) {
+      progressFill.style.width = '0%';
+    }
+    
+    const startAt = performance.now();
+    
+    return new Promise((resolve) => {
+      function step(now) {
+        const elapsed = now - startAt;
+        const t = Math.min(elapsed / duration, 1);
+        const newWidth = start + (targetPercent - start) * t;
+        
+        // Ensure width is explicitly set with % unit
+        progressFill.style.width = `${newWidth}%`;
+        
+        if (t < 1) {
+          requestAnimationFrame(step);
+        } else {
+          // Ensure we reach exactly the target percentage
+          progressFill.style.width = `${targetPercent}%`;
+          resolve();
+        }
+      }
+      
+      // Start the animation
+      requestAnimationFrame(step);
+    });
+  }
+</script>
+
+<style>
+  .form-group { margin-bottom: 2rem; }
+
+  input[type='email'] {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--color-border);
+    color: var(--color-text);
+    padding: 1.25rem;
+    border-radius: 0.75rem;
+    font-size: 1.25rem;
+    text-align: center;
+    transition: all 0.2s;
+  }
+  input[type='email']:hover { border-color: var(--color-accent); }
+  input[type='email']:focus {
+    outline: none;
+    border-color: var(--color-accent);
+    background-color: rgba(255,255,255,0.1);
+  }
+
+  .benefits { margin-top:2rem; display:flex; flex-direction:column; gap:1rem; }
+  .benefit-item { display:flex; align-items:center; gap:0.75rem; color:var(--color-text); }
+  .check { color:var(--color-accent); font-weight:bold; }
+
+  .trust-message {
+    display:flex; align-items:center; gap:1rem;
+    padding:1.25rem; background:rgba(255,255,255,0.05); border-radius:0.75rem;
+    margin-bottom:2rem;
+  }
+  .lock-icon { font-size:1.5rem; }
+  .trust-content { flex:1; }
+  .trust-title { font-size:0.875rem; margin:0 0 .25rem; }
+  .trust-text  { font-size:0.75rem; margin:0; }
+
+  .button {
+    width:100%; display:flex; align-items:center; justify-content:center;
+    gap:0.5rem; background:var(--color-accent); color:var(--color-background);
+    padding:1.25rem; border:none; border-radius:0.75rem;
+    font-size:1.25rem; cursor:pointer; transition:all .2s;
+  }
+  .button:hover { opacity:0.9; transform:translateY(-2px); }
+
+  .loading-overlay {
+    position:fixed; inset:0; background:var(--color-background);
+    display:none; align-items:center; justify-content:center; z-index:100;
+  }
+  .loading-content {
+    display:flex; flex-direction:column; align-items:center;
+    gap:2rem; padding:2rem; max-width:400px; width:90%;
+  }
+  .spinner {
+    width:40px; height:40px;
+    border:3px solid rgba(228,242,35,0.1);
+    border-top-color:var(--color-accent);
+    border-radius:50%; animation:spin 1s linear infinite;
+  }
+  .progress-container { width:100%; }
+  .progress-bar {
+    height:4px; background:rgba(255,255,255,0.1);
+    border-radius:2px; overflow:hidden;
+  }
+  .progress-fill {
+    height:100%; width:0; background:var(--color-accent);
+    transition:width .3s linear;
+  }
+  .loading-text {
+    font-size:1rem; margin:0; text-align:center; color:var(--color-text);
+  }
+
+  @keyframes spin { to { transform:rotate(360deg); } }
+  @media (max-width:768px) {
+    input[type='email'] { font-size:1.125rem; padding:1rem; }
+    .button            { font-size:1.125rem; padding:1rem; }
+  }
+</style>
