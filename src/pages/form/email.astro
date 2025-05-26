@@ -154,16 +154,16 @@ const previousEmail = getFormValue('email');
     
     // CRITICAL FIX: Always use the most recent values from hidden inputs
     // This ensures we capture the latest values passed via URL parameters
-    const incomeInput = form.querySelector('input[name="income"]');
-    if (incomeInput && incomeInput.value) {
-      state.income = incomeInput.value;
-      console.log('Using income from hidden input:', incomeInput.value);
+    const incomeInputField = form.querySelector('input[name="income"]');
+    if (incomeInputField && incomeInputField.value) {
+      state.income = incomeInputField.value;
+      console.log('Using income from hidden input:', incomeInputField.value);
     }
     
-    const phoneInput = form.querySelector('input[name="phone"]');
-    if (phoneInput && phoneInput.value) {
-      state.phone = phoneInput.value;
-      console.log('Using phone from hidden input:', phoneInput.value);
+    const phoneInputField = form.querySelector('input[name="phone"]');
+    if (phoneInputField && phoneInputField.value) {
+      state.phone = phoneInputField.value;
+      console.log('Using phone from hidden input:', phoneInputField.value);
     }
     
     // Save the updated state
@@ -210,13 +210,13 @@ const previousEmail = getFormValue('email');
     
     // CRITICAL FIX: Ensure income and phone values are properly set from sessionStorage
     // Never default to "0" or "0000000000" as these are invalid values
-    let incomeInput = form.querySelector('input[name="income"]');
-    if (!incomeInput || !incomeInput.value) {
+    let incomeInputElement = form.querySelector('input[name="income"]');
+    if (!incomeInputElement || !incomeInputElement.value) {
       // Get the most accurate income value from sessionStorage
       const incomeValue = allData.income || "";
       
-      if (incomeInput) {
-        incomeInput.value = incomeValue;
+      if (incomeInputElement) {
+        incomeInputElement.value = incomeValue;
         console.log(`Updated income field with value: ${incomeValue}`);
       } else {
         const hidden = document.createElement('input');
@@ -228,13 +228,13 @@ const previousEmail = getFormValue('email');
       }
     }
     
-    let phoneInput = form.querySelector('input[name="phone"]');
-    if (!phoneInput || !phoneInput.value) {
+    let phoneInputElement = form.querySelector('input[name="phone"]');
+    if (!phoneInputElement || !phoneInputElement.value) {
       // Get the most accurate phone value from sessionStorage
       const phoneValue = allData.phone || "";
       
-      if (phoneInput) {
-        phoneInput.value = phoneValue;
+      if (phoneInputElement) {
+        phoneInputElement.value = phoneValue;
         console.log(`Updated phone field with value: ${phoneValue}`);
       } else {
         const hidden = document.createElement('input');
